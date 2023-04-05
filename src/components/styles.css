@@ -1,0 +1,77 @@
+.activity{
+    display: flex;
+    flex-direction: column;   
+    text-align: center;
+    align-items: flex-start;
+    padding: 10px;
+    margin: 1rem;
+    padding: 2rem 2rem;
+    position: relative;
+     outline: none;
+  }
+  
+  #menu-select-activity{
+    background-color: rgb(55, 107, 64);
+  }
+
+.timercounter{
+    display: flex;
+    flex-direction: column;   
+    padding: 20px;
+    margin: 1rem;
+    padding: 2rem 2rem;
+    text-align: center;
+    align-items: flex-end;
+}
+
+.map-details{
+  position: relative;  
+  width: 790px;
+  height: 490px;
+  padding:2%;
+  
+}
+.routes-activity-map{
+    display: flex;
+    flex-direction: column;   
+    justify-content: space-between;
+    padding: 10px;
+    margin: 1rem;
+    padding: 2rem 2rem;
+    text-align: center;
+    align-items: flex-start;
+
+}
+
+#dropdown-menu-align-left{
+    background-color: rgb(70, 124, 77);
+    display: inline-block;
+    border: 1px solid rgb(112, 77, 77);
+    padding: 1rem 1rem;
+    vertical-align: middle;
+
+}
+#addnew-routes-align-right{
+    background-color: rgb(190, 170, 144);
+    display: inline-block;
+    border: 1px solid rgb(156, 135, 135);
+    padding: 1rem 1rem;
+    vertical-align: middle;    
+}
+
+.userList{
+  display: flex;
+  text-align: center;
+  align-items: flex-start;
+  padding: 10px;
+  margin: 1rem;
+  padding: 2rem 2rem;
+  position: relative;
+   outline: none;
+}
+.container-child{
+  display: flex;
+  flex-direction: column;
+  width: 750px;
+  background: linear-gradient(45deg,rgb(236, 227, 227),#afb2b3);
+}
