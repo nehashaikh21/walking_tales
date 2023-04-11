@@ -1,4 +1,3 @@
-import { Parallax, ParallaxLayer } from "@react-spring/parallax";
 import { useRef } from "react";
 import Image from "react-bootstrap/Image";
 import Container from "react-bootstrap/Container";
