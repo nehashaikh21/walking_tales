@@ -6,11 +6,32 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import Button from "react-bootstrap/Button";
 import "./styles.css";
 import Capturetime from "./Capturetime";
-import LocationMarker from "./LocationMarker";
+import Map from "./Map";
 import SideBar from "./Sidebar";
 import { UserContext } from "../context/UserContext";
 import { Link, useNavigate } from "react-router-dom";
+import { MapContainer, TileLayer, useMap, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-control-geocoder/dist/Control.Geocoder.css";
+import "leaflet-control-geocoder/dist/Control.Geocoder.js";
+import L from "leaflet";
+import userIcon from "./constants";
 
+function Test({ location, search }) {
+  const map = useMap();
+  if (location) map.flyTo(location, 12);
+
+  return location ? (
+    <Marker
+      draggable
+      position={location}
+      //ref={markerRef}
+      icon={userIcon}
+    >
+      <Popup>You are here: {search}</Popup>
+    </Marker>
+  ) : null;
+}
 export default function UserProfile() {
   const { user, setUser } = useContext(UserContext);
   const [sideNavExpanded, setSideNavExpanded] = useState(false);
@@ -21,8 +42,6 @@ export default function UserProfile() {
     Route_name: "",
     Route_Value: "",
   });
-  const [showRouteWindow, setShowWindow] = useState(false);
-  const [destination, setDestination] = useState([]);
 
   const navigate = useNavigate();
 
@@ -33,24 +52,15 @@ export default function UserProfile() {
     });
   }, []);
 
-  const currentLoc = [latitude, longitude];
   //------------------------------------------------------------------
   const handleSelect = (e) => {
     setSelvalue(e);
   };
-  console.log(" value set" + setvalue);
-
-  //------------------------------------------------------------------
-  // const handleSelectedRoutes = (event) => {
-  //   setSaveroute(event.target.value);
-  // };
 
   //------------------------------------------------------------------
   const addnewroutes = (event) => {
-    setSaveroute((prev) => ({ ...prev, [event.target.name]: destination }));
-    console.log("saveroute: ", destination);
     navigate("/findpartner", {
-      state: { startpoint: currentLoc, destinationpoint: destination },
+      state: { startpoint: startloc, destinationpoint: endloc },
     });
   };
 
@@ -60,6 +70,39 @@ export default function UserProfile() {
     marginLeft: sideNavExpanded ? "250px" : "110px", // arbitrary values
     transition: "margin 0.2s ease",
   };
+
+  const [startloc, updStartLoc] = useState();
+  const [startsearch, updStartSearch] = useState();
+  const [endloc, updEndLoc] = useState();
+  const [endsearch, updEndSearch] = useState();
+
+  useEffect(() => {
+    const geocoder = L.Control.Geocoder.nominatim();
+    if (startsearch)
+      geocoder.geocode(startsearch, (results) => {
+        //console.log(results);
+        var r = results[0];
+        if (r) {
+          const { lat, lng } = r?.center;
+          updStartLoc({ lat, lng });
+          //console.log(r);
+        }
+      });
+  }, [startsearch]);
+
+  useEffect(() => {
+    const geocoder = L.Control.Geocoder.nominatim();
+    if (endsearch)
+      geocoder.geocode(endsearch, (results) => {
+        //console.log(results);
+        var r = results[0];
+        if (r) {
+          const { lat, lng } = r?.center;
+          updEndLoc({ lat, lng });
+          //console.log(r);
+        }
+      });
+  }, [endsearch]);
 
   return (
     <>
@@ -97,36 +140,16 @@ export default function UserProfile() {
             </div>
             <div className="routes-activity-map">
               <div className="row">
-                <div>
-                  <Button
-                    id="addnew-routes-align-right"
-                    onClick={() => setShowWindow(true)}
-                  >
-                    Add new route
-                  </Button>
-                  {showRouteWindow && (
-                    <div className="map-box  shadow rounded">
-                      <input
-                        type="text"
-                        name="start"
-                        value={currentLoc}
-                        autoComplete="off"
-                      />
-                      <input
-                        type="text"
-                        name="destination"
-                        value={destination}
-                        autoComplete="on"
-                        onChange={(e) => setDestination(e.target.value)}
-                      />
-                      <br />
-                      <Button style={{ background: "#94B49F" }} type="save">
-                        Save
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
+                <span>Enter Start Location:</span>
+                <input
+                  placeholder="Enter location Address"
+                  onChange={(e) => updStartSearch(e.target.value)}
+                />
+                <span>Enter End Location:</span>
+                <input
+                  placeholder="Enter location Address"
+                  onChange={(e) => updEndSearch(e.target.value)}
+                />
                 <div>
                   <Button
                     type="button"
@@ -140,11 +163,22 @@ export default function UserProfile() {
               </div>
             </div>
           </div>
-
           {/* <h3>Welcome,{user.username}</h3> */}
-          <div className="map-details">
-            <LocationMarker />
-          </div>
+          {/*<div className="map-details">
+            <MapContainer
+              center={startloc || { lat: 50, lng: 30 }}
+              zoom={startloc ? 12 : 3}
+              zoomControl={false}
+              style={{ height: "80vh" }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <Test location={startloc} search={startsearch} />
+            </MapContainer>
+            {startloc?.lat},{startloc?.lng}
+  </div>*/}
         </div>
       </div>
       <Footer />

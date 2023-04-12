@@ -4,6 +4,7 @@ import io from "socket.io-client";
 import { UserContext } from "../context/UserContext";
 import Header from "./Header";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 
 function Chat() {
   const { user, setUser } = useContext(UserContext);
@@ -48,7 +49,7 @@ function Chat() {
         <Header />
       </div>
       <div className="card-chat">
-        <form onSubmit={onMessageSubmit}>
+        <Form onSubmit={onMessageSubmit}>
           <center>
             <div className="render-chat justify-content-center">
               <h1>Chat</h1>
@@ -78,10 +79,13 @@ function Chat() {
             />
           </div>
           <br />
-          <Button style={{ color: "white", background: "#073648" }}>
+          <Button
+            onClick={onMessageSubmit}
+            style={{ color: "white", background: "#073648" }}
+          >
             Send
           </Button>
-        </form>
+        </Form>
         {/* <div className="render-chat">
                 <h1>Chat</h1>  
                 {renderChat()}

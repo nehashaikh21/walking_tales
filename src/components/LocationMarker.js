@@ -38,11 +38,12 @@ export default function App() {
   }
 
   return (
-    <MapContainer className="map-container-style"
+    <MapContainer
+      className="map-container-style"
       center={[49.1951, 16.6068]}
       zoom={13}
       scrollWheelZoom
-      style={{ height: "450px" ,width:"750px" }}
+      style={{ height: "450px", width: "750px" }}
     >
       <TileLayer
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'

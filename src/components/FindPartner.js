@@ -27,7 +27,7 @@ export default function FindPartner() {
     }
     findUsers();
   }, []);
-  console.log("----------", users);
+  // console.log("----------", users);
 
   return (
     <>
