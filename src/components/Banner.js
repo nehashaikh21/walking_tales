@@ -13,7 +13,7 @@ export default function Banner() {
         lg="auto"
         xs="auto"
       >
-        <h1 className="text-center mt-4">Let's Walk Together !</h1>
+        <h1 className="text-center mt-4">Let's Take The Route Together !</h1>
         <Image
           responsive
           src="./images/people.png"

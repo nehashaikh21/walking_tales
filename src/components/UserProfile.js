@@ -1,56 +1,62 @@
 import DashboardHeader from "./DashboardHeader";
 import Footer from "./Footer";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import Button from "react-bootstrap/Button";
 import "./styles.css";
 import Capturetime from "./Capturetime";
-import Map from "./Map";
 import SideBar from "./Sidebar";
 import { UserContext } from "../context/UserContext";
 import { Link, useNavigate } from "react-router-dom";
-import { MapContainer, TileLayer, useMap, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.js";
-import L from "leaflet";
-import userIcon from "./constants";
+import { OpenStreetMapProvider } from "leaflet-geosearch";
 
-function Test({ location, search }) {
-  const map = useMap();
-  if (location) map.flyTo(location, 12);
-
-  return location ? (
-    <Marker
-      draggable
-      position={location}
-      //ref={markerRef}
-      icon={userIcon}
-    >
-      <Popup>You are here: {search}</Popup>
-    </Marker>
-  ) : null;
-}
 export default function UserProfile() {
   const { user, setUser } = useContext(UserContext);
   const [sideNavExpanded, setSideNavExpanded] = useState(false);
-  const [latitude, setLatitude] = useState(0);
-  const [longitude, setLongitude] = useState(0);
   const [setvalue, setSelvalue] = useState(""); // option data value
   const [saveroute, setSaveroute] = useState({
     Route_name: "",
     Route_Value: "",
   });
 
-  const navigate = useNavigate();
+  const provider = useRef();
+  const searchRef = useRef();
+
+  const initProvider = () => {
+    provider.current = new OpenStreetMapProvider({
+      params: {
+        "accept-language": "en",
+        // countrycodes: "eu",
+      },
+    });
+  };
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      setLatitude(position.coords.latitude);
-      setLongitude(position.coords.longitude);
-    });
+    initProvider();
   }, []);
+
+  const [searchResults, setSearchResults] = useState([]);
+  const [endsearchResults, setEndSearchResults] = useState([]);
+
+  const onStartInputChanged = (e) => {
+    let input = e.target.value;
+    provider.current.search({ query: input }).then((results) => {
+      setSearchResults(() => results);
+    });
+  };
+  const onEndInputChanged = (e) => {
+    const input = e.target.value;
+    provider.current.search({ query: input }).then((results) => {
+      setEndSearchResults(() => results);
+    });
+  };
+
+  const navigate = useNavigate();
 
   //------------------------------------------------------------------
   const handleSelect = (e) => {
@@ -77,31 +83,23 @@ export default function UserProfile() {
   const [endsearch, updEndSearch] = useState();
 
   useEffect(() => {
-    const geocoder = L.Control.Geocoder.nominatim();
-    if (startsearch)
-      geocoder.geocode(startsearch, (results) => {
-        //console.log(results);
-        var r = results[0];
-        if (r) {
-          const { lat, lng } = r?.center;
-          updStartLoc({ lat, lng });
-          //console.log(r);
-        }
-      });
+    if (startsearch) {
+      const lng = startsearch.x;
+      const lat = startsearch.y;
+      updStartLoc({ lat, lng });
+      setSearchResults(() => []);
+      searchRef.current.value = "";
+    }
   }, [startsearch]);
 
   useEffect(() => {
-    const geocoder = L.Control.Geocoder.nominatim();
-    if (endsearch)
-      geocoder.geocode(endsearch, (results) => {
-        //console.log(results);
-        var r = results[0];
-        if (r) {
-          const { lat, lng } = r?.center;
-          updEndLoc({ lat, lng });
-          //console.log(r);
-        }
-      });
+    if (endsearch) {
+      const lng = endsearch.x;
+      const lat = endsearch.y;
+      updEndLoc({ lat, lng });
+      setSearchResults(() => []);
+      searchRef.current.value = "";
+    }
   }, [endsearch]);
 
   return (
@@ -138,30 +136,105 @@ export default function UserProfile() {
                 Select Start Time : <Capturetime />
               </span>
             </div>
-            <div className="routes-activity-map">
-              <div className="row">
+
+            <div className="mt-4">
+              <b>Create a new route</b>
+            </div>
+            <form onSubmit={addnewroutes}>
+              <div>
                 <span>Enter Start Location:</span>
                 <input
-                  placeholder="Enter location Address"
-                  onChange={(e) => updStartSearch(e.target.value)}
+                  ref={searchRef}
+                  placeholder="Search location "
+                  onChange={onStartInputChanged}
+                  className="m-2"
                 />
+              </div>
+              <div className="search_result">
+                {searchResults &&
+                  searchResults.length !== 0 &&
+                  searchResults.map((result, index) => (
+                    <div
+                      className="search_result-item"
+                      key={index}
+                      onClick={() => updStartSearch(result)}
+                    >
+                      <div className="search_result-icon">
+                        <svg
+                          title="LocationMarkerFilled"
+                          viewBox="0 0 24 24"
+                          className="g2 ec db"
+                        >
+                          <g transform="matrix( 1 0 0 1 2.524993896484375 1.0250244140625 )">
+                            <path
+                              fillRule="nonzero"
+                              clipRule="nonzero"
+                              d="M16.175 2.775C12.475 -0.925 6.475 -0.925 2.775 2.775C-0.925 6.475 -0.925 12.575 2.775 16.275L9.475 22.975L16.175 16.175C19.875 12.575 19.875 6.475 16.175 2.775ZM9.475 11.475C8.375 11.475 7.475 10.575 7.475 9.475C7.475 8.375 8.375 7.475 9.475 7.475C10.575 7.475 11.475 8.375 11.475 9.475C11.475 10.575 10.575 11.475 9.475 11.475Z"
+                              opacity="1"
+                            ></path>
+                          </g>
+                        </svg>
+                      </div>
+
+                      <p className="search_result-label">
+                        <a key={index} onClick={() => updStartSearch(result)}>
+                          {result.label}
+                        </a>
+                      </p>
+                    </div>
+                  ))}
+              </div>
+              <div className="mt-2 mb-4">
                 <span>Enter End Location:</span>
                 <input
-                  placeholder="Enter location Address"
-                  onChange={(e) => updEndSearch(e.target.value)}
+                  ref={searchRef}
+                  placeholder="Search location "
+                  onChange={onEndInputChanged}
+                  className="m-2"
                 />
-                <div>
-                  <Button
-                    type="button"
-                    style={{ background: "#073648" }}
-                    id="find-your-mate"
-                    onClick={addnewroutes}
-                  >
-                    Find mate
-                  </Button>
-                </div>
               </div>
-            </div>
+              <div className="search_result">
+                {endsearchResults &&
+                  endsearchResults.length !== 0 &&
+                  endsearchResults.map((result, index) => (
+                    <div
+                      className="search_result-item"
+                      key={index}
+                      onClick={() => updEndSearch(result)}
+                    >
+                      <div className="search_result-icon">
+                        <svg
+                          title="LocationMarkerFilled"
+                          viewBox="0 0 24 24"
+                          className="g2 ec db"
+                        >
+                          <g transform="matrix( 1 0 0 1 2.524993896484375 1.0250244140625 )">
+                            <path
+                              fillRule="nonzero"
+                              clipRule="nonzero"
+                              d="M16.175 2.775C12.475 -0.925 6.475 -0.925 2.775 2.775C-0.925 6.475 -0.925 12.575 2.775 16.275L9.475 22.975L16.175 16.175C19.875 12.575 19.875 6.475 16.175 2.775ZM9.475 11.475C8.375 11.475 7.475 10.575 7.475 9.475C7.475 8.375 8.375 7.475 9.475 7.475C10.575 7.475 11.475 8.375 11.475 9.475C11.475 10.575 10.575 11.475 9.475 11.475Z"
+                              opacity="1"
+                            ></path>
+                          </g>
+                        </svg>
+                      </div>
+                      <a key={index} onClick={() => updEndSearch(result)}>
+                        <p className="search_result-label">{result.label}</p>
+                      </a>
+                    </div>
+                  ))}
+              </div>
+              <div>
+                <Button
+                  type="submit"
+                  style={{ background: "#073648" }}
+                  id="find-your-mate"
+                  onClick={addnewroutes}
+                >
+                  Save Route & Find mate
+                </Button>
+              </div>
+            </form>
           </div>
           {/* <h3>Welcome,{user.username}</h3> */}
           {/*<div className="map-details">

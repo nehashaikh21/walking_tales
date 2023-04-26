@@ -27,10 +27,10 @@ export default function Routing() {
         ),
       ],
 
-      routeWhileDragging: false,
+      routeWhileDragging: true,
     }).addTo(map);
 
-    return;
+    return () => map.routingControl;
   }, [map]);
 
   return null;
