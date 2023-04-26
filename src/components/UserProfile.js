@@ -25,7 +25,8 @@ export default function UserProfile() {
   });
 
   const provider = useRef();
-  const searchRef = useRef();
+  const startsearchRef = useRef();
+  const endsearchRef = useRef();
 
   const initProvider = () => {
     provider.current = new OpenStreetMapProvider({
@@ -88,7 +89,7 @@ export default function UserProfile() {
       const lat = startsearch.y;
       updStartLoc({ lat, lng });
       setSearchResults(() => []);
-      searchRef.current.value = "";
+      startsearchRef.current.value = startsearch.label;
     }
   }, [startsearch]);
 
@@ -97,8 +98,8 @@ export default function UserProfile() {
       const lng = endsearch.x;
       const lat = endsearch.y;
       updEndLoc({ lat, lng });
-      setSearchResults(() => []);
-      searchRef.current.value = "";
+      setEndSearchResults(() => []);
+      endsearchRef.current.value = endsearch.label;
     }
   }, [endsearch]);
 
@@ -144,7 +145,7 @@ export default function UserProfile() {
               <div>
                 <span>Enter Start Location:</span>
                 <input
-                  ref={searchRef}
+                  ref={startsearchRef}
                   placeholder="Search location "
                   onChange={onStartInputChanged}
                   className="m-2"
@@ -187,7 +188,7 @@ export default function UserProfile() {
               <div className="mt-2 mb-4">
                 <span>Enter End Location:</span>
                 <input
-                  ref={searchRef}
+                  ref={endsearchRef}
                   placeholder="Search location "
                   onChange={onEndInputChanged}
                   className="m-2"
