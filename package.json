@@ -2,6 +2,7 @@
   "name": "walking_tales",
   "version": "0.1.0",
   "private": true,
+  "proxy":"https://walkingtalesbackend.onrender.com",
   "dependencies": {
     "@fontsource/roboto": "^4.5.8",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
