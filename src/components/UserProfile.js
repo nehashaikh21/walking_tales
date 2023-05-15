@@ -130,7 +130,9 @@ export default function UserProfile() {
             </DropdownButton>
             <br />
             <div>
-              <span>Select Date :</span>
+              <span>
+                Select Date : <input type="date" />
+              </span>
             </div>
             <div>
               <span>
